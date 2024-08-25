@@ -1,5 +1,6 @@
 package br.com.zanisk.main;
 
+import br.com.zanisk.models.EpisodeData;
 import br.com.zanisk.models.SerieData;
 import br.com.zanisk.service.ConsumeApi;
 import br.com.zanisk.service.DataConverter;
@@ -8,6 +9,7 @@ import br.com.zanisk.models.SeasonData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Main  {
     private ConsumeApi consumeApi = new ConsumeApi();
@@ -38,6 +40,10 @@ public class Main  {
 
 		}
 		seasons.forEach(t -> t.episodes().forEach(e -> System.out.println(e.title())));
+
+        List<EpisodeData> episodesData = seasons.stream()
+                .flatMap(s ->s.episodes().stream())
+                .collect(Collectors.toList());
 
     }
 }
