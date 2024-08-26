@@ -1,12 +1,16 @@
 package br.com.zanisk.main;
 
+import br.com.zanisk.models.Episode;
 import br.com.zanisk.models.EpisodeData;
 import br.com.zanisk.models.SerieData;
 import br.com.zanisk.service.ConsumeApi;
 import br.com.zanisk.service.DataConverter;
 import br.com.zanisk.models.SeasonData;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -39,11 +43,48 @@ public class Main  {
 
 
 		}
-		seasons.forEach(t -> t.episodes().forEach(e -> System.out.println(e.title())));
+//		seasons.forEach(t -> t.episodes().forEach(e -> System.out.println(e.title())));
 
         List<EpisodeData> episodesData = seasons.stream()
                 .flatMap(s ->s.episodes().stream())
                 .collect(Collectors.toList());
 
+
+
+        episodesData.stream()
+                .filter(e -> !e.imdbRating().equalsIgnoreCase("N/A"))
+                .sorted(Comparator.comparing(EpisodeData::imdbRating).reversed())
+                .limit(5);
+
+
+        List<Episode> episodes = seasons.stream()
+                .flatMap(s ->s.episodes().stream()
+                        .map(d -> new Episode(s.season(), d))
+                ).collect(Collectors.toList());
+
+
+        System.out.println("\nTOP 10 EPISÓDIOS");
+        episodes.stream().sorted(Comparator.comparing(Episode::getImdbRating).reversed())
+                .limit(10)
+                .forEach(System.out::println);
+
+        System.out.println("A partir de que ano você deseja ver os episódios? ");
+        var year = scan.nextInt();
+        scan.nextLine();
+
+        LocalDate searchDate = LocalDate.of(year,1,1);
+
+        DateTimeFormatter dTF = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        episodes.stream()
+                .filter(e-> e.getReleaseDate() != null && e.getReleaseDate().isAfter(searchDate))
+                .forEach(e -> System.out.println(
+                        "Temporada:  " + e.getSeason() +
+                                " Episódio: " + e.getTitle() +
+                                " Data lançamento: " + e.getReleaseDate().format(dTF)
+                ));
+
     }
+
+
 }
