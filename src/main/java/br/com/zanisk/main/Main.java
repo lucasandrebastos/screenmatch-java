@@ -9,10 +9,7 @@ import br.com.zanisk.models.SeasonData;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Main  {
@@ -83,6 +80,19 @@ public class Main  {
                                 " Episódio: " + e.getTitle() +
                                 " Data lançamento: " + e.getReleaseDate().format(dTF)
                 ));
+
+        Map<Integer, Double> ratingPerSeason = episodes.stream()
+                .filter(e -> e.getImdbRating() >  0.0)
+                .collect(Collectors.groupingBy(Episode::getSeason, Collectors.averagingDouble(Episode::getImdbRating)));
+        System.out.println(ratingPerSeason);
+
+        DoubleSummaryStatistics est = episodes.stream()
+                .filter(e -> e.getImdbRating() > 0.0)
+                .collect(Collectors.summarizingDouble(Episode::getImdbRating));
+        System.out.println("Média: " + est.getAverage());
+        System.out.println("Melhor ep: " + est.getMax());
+        System.out.println("Pior ep: " + est.getMin());
+        System.out.println("Quantidade: " + est.getCount());
 
     }
 
